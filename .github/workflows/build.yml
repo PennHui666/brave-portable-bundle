@@ -83,7 +83,7 @@ jobs:
       - name: 注入 payload 到包根
         shell: bash
         run: |
-          cp -v payload/setup.bat payload/launch.bat payload/unregister.bat payload/readme.html pkg/
+          cp -v payload/setup.bat payload/launch.vbs payload/unregister.bat payload/readme.html pkg/
 
       - name: 确认启动器存在
         shell: bash

@@ -43,7 +43,7 @@ echo [3/4] 登记到默认应用候选（RegisteredApplications）...
 reg add "HKCU\Software\RegisteredApplications" /v "%APPNAME%" /d "Software\Clients\StartMenuInternet\%CLIENT%\Capabilities" /f >nul
 
 echo [4/4] 创建桌面快捷方式...
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$ws=New-Object -ComObject WScript.Shell; $p=[Environment]::GetFolderPath('Desktop')+'\Brave Portable.lnk'; $s=$ws.CreateShortcut($p); $s.TargetPath='%~dp0launch.bat'; $s.WorkingDirectory='%~dp0'; $s.IconLocation='%WRAPPER%,0'; $s.Description='Brave Portable 便携启动器'; $s.Save(); Write-Output ('已创建：'+$p)"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$ws=New-Object -ComObject WScript.Shell; $p=[Environment]::GetFolderPath('Desktop')+'\Brave Portable.lnk'; $s=$ws.CreateShortcut($p); $s.TargetPath='%~dp0launch.vbs'; $s.WorkingDirectory='%~dp0'; $s.IconLocation='%WRAPPER%,0'; $s.Description='Brave Portable 便携启动器'; $s.Save(); Write-Output ('已创建：'+$p)"
 
 echo.
 echo ============================================

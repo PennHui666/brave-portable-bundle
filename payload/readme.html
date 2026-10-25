@@ -43,10 +43,16 @@ code{background:#f4f4f4;padding:.1em .4em;border-radius:3px}
 
 <h2>启动方式</h2>
 <ul>
-<li><strong>桌面快捷方式</strong>（推荐）：每次启动会自动检查并修正注册路径。</li>
+<li><strong>桌面快捷方式</strong>（推荐）：无命令行窗口，每次启动自动检查并修正注册路径。</li>
 <li><strong>外部链接</strong>（他处点击网址）：经系统协议调用本启动器，数据落入 <code>data</code>。</li>
 <li><strong>直接双击 brave-portable.exe</strong>：也可，但不触发路径自检。</li>
 </ul>
+
+<h2>任务栏固定</h2>
+<p>如需从任务栏启动，请<strong>右键 <code>brave-portable.exe</code> →「固定到任务栏」</strong>，从该图标启动会经过启动器，数据正确落入 <code>data</code>。</p>
+<div class="danger box">
+<strong>切勿</strong>右键运行中的 Brave 图标固定——那是 <code>app\brave.exe</code>，从它启动会绕过启动器，数据落 C 盘并在退出时被 <code>cleanup</code> 清理，导致<strong>数据丢失</strong>。
+</div>
 
 <h2>数据与迁移</h2>
 <p>所有数据（书签、历史、Cookie、密码、扩展等）都在本文件夹的 <code>data</code> 目录。</p>
