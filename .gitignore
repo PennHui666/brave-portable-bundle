@@ -1,0 +1,11 @@
+# CI 临时产物
+work/
+pkg/
+*.7z
+*.sha256
+
+# 编辑器/系统
+.vscode/
+.idea/
+*.swp
+Thumbs.db

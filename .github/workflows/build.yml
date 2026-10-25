@@ -1,0 +1,114 @@
+name: build
+
+on:
+  workflow_dispatch:
+    inputs:
+      upstream_tag:
+        description: '上游 portapps/brave-portable release tag（留空取 latest）'
+        required: false
+  schedule:
+    - cron: '0 4 * * *'
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout bundle
+        uses: actions/checkout@v4
+
+      - name: 安装 PyYAML
+        run: python -m pip install pyyaml
+
+      - name: 确定上游版本
+        id: up
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -n "${{ inputs.upstream_tag }}" ]; then
+            TAG="${{ inputs.upstream_tag }}"
+          else
+            TAG=$(gh release view --repo portapps/brave-portable --json tagName -q .tagName)
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          VER="${TAG#v}"
+          echo "ver=$VER" >> $GITHUB_OUTPUT
+          echo "asset=brave-portable-win64-${VER}.7z" >> $GITHUB_OUTPUT
+
+      - name: 下载上游发布包
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p work
+          gh release download "${{ steps.up.outputs.tag }}" \
+            --repo portapps/brave-portable \
+            --pattern "${{ steps.up.outputs.asset }}" \
+            --dir work
+
+      - name: 解压
+        shell: bash
+        run: |
+          mkdir -p pkg
+          "/c/Program Files/7-Zip/7z.exe" x "work/${{ steps.up.outputs.asset }}" -opkg -y
+
+      - name: 预置配置并结构化校验
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os, yaml
+          pkg = "pkg"
+          target = os.path.join(pkg, "brave-portable.yml")
+          preset = yaml.safe_load(open("config/brave-portable.yml", encoding="utf-8")) or {}
+          existing = {}
+          if os.path.exists(target):
+              existing = yaml.safe_load(open(target, encoding="utf-8")) or {}
+          existing.setdefault("app", {})
+          existing["app"]["cleanup"] = preset.get("app", {}).get("cleanup", True)
+          with open(target, "w", encoding="utf-8") as f:
+              yaml.safe_dump(existing, f, allow_unicode=True, sort_keys=False)
+          chk = yaml.safe_load(open(target, encoding="utf-8"))
+          assert chk.get("app", {}).get("cleanup") is True, "app.cleanup 必须为 true"
+          print("校验通过：app.cleanup == true")
+          PY
+
+      - name: 注入 payload 到包根
+        shell: bash
+        run: |
+          cp -v payload/setup.bat payload/launch.bat payload/unregister.bat payload/readme.html pkg/
+
+      - name: 确认启动器存在
+        shell: bash
+        run: |
+          test -f pkg/brave-portable.exe || { echo "包根未找到 brave-portable.exe"; exit 1; }
+          ls -la pkg/
+
+      - name: 重打包
+        id: pack
+        shell: bash
+        run: |
+          OUT="brave-portable-bundle-${{ steps.up.outputs.ver }}.7z"
+          "/c/Program Files/7-Zip/7z.exe" a -t7z "$OUT" ./pkg/* -mx=9
+          sha256sum "$OUT" > "$OUT.sha256"
+          echo "out=$OUT" >> $GITHUB_OUTPUT
+
+      - name: 创建 Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          REL="v${{ steps.up.outputs.ver }}-bundle"
+          if gh release view "$REL" >/dev/null 2>&1; then
+            echo "Release $REL 已存在，跳过创建"
+            exit 0
+          fi
+          gh release create "$REL" \
+            "${{ steps.pack.outputs.out }}" "${{ steps.pack.outputs.out }}.sha256" \
+            --title "Brave Portable Bundle ${{ steps.up.outputs.ver }}" \
+            --notes "基于上游 portapps/brave-portable ${{ steps.up.outputs.tag }} 组装，已注入便携化脚本（setup/launch/unregister/readme）。"

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Brave Portable 使用说明</title>
+<style>
+body{font-family:"Microsoft YaHei",sans-serif;max-width:780px;margin:2em auto;padding:0 1em;line-height:1.7;color:#222}
+h1{color:#ff5722}
+h2{border-bottom:2px solid #eee;padding-bottom:.3em;margin-top:1.8em}
+.box{background:#fff8e1;border-left:4px solid #ffc107;padding:.8em 1em;margin:1em 0}
+.danger{background:#ffebee;border-left:4px solid #f44336}
+button{font-size:1.1em;padding:.6em 1.2em;background:#ff5722;color:#fff;border:none;border-radius:4px;cursor:pointer}
+button:hover{background:#e64a19}
+code{background:#f4f4f4;padding:.1em .4em;border-radius:3px}
+</style>
+</head>
+<body>
+<h1>Brave Portable 使用说明</h1>
+<p>本文件夹是一个真正便携的 Brave 浏览器包。所有用户数据保存在文件夹内的 <code>data</code> 目录，宿主机 C 盘不留残留，复制整个文件夹即可迁移。</p>
+
+<h2>四条规则</h2>
+<ol>
+<li>解压后先运行 <code>setup.bat</code>（已完成则会打开本页）。</li>
+<li><strong>不要</strong>点击 Brave 内部的“设为默认浏览器”。</li>
+<li>数据始终在 <code>data</code> 目录，复制整个文件夹即可带走。</li>
+<li>移动文件夹或换机器后，重跑一次 <code>setup.bat</code>（换机器还需重新设一次默认浏览器）。</li>
+</ol>
+
+<h2>设置默认浏览器（手动一次）</h2>
+<p>由于 Windows 的安全机制，程序无法自动设置默认浏览器，需要你手动确认一次：</p>
+<ol>
+<li>点击下方按钮打开系统“默认应用”设置。</li>
+<li>在列表中找到 <strong>“Brave Portable”</strong>，点击它。</li>
+<li>将“http”和“https”都设为 Brave Portable。</li>
+</ol>
+<p style="text-align:center;margin:1.5em 0">
+<button onclick="location.href='ms-settings:defaultapps'">打开默认应用设置</button>
+</p>
+<div class="box">
+<strong>注意</strong>：务必从列表中选择名为 <strong>“Brave Portable”</strong> 的条目。
+不要用“选择其他应用 → 按路径指向 exe”的方式，那样系统会另建关联，导致外部链接仍走错路径。
+</div>
+
+<h2>启动方式</h2>
+<ul>
+<li><strong>桌面快捷方式</strong>（推荐）：每次启动会自动检查并修正注册路径。</li>
+<li><strong>外部链接</strong>（他处点击网址）：经系统协议调用本启动器，数据落入 <code>data</code>。</li>
+<li><strong>直接双击 brave-portable.exe</strong>：也可，但不触发路径自检。</li>
+</ul>
+
+<h2>数据与迁移</h2>
+<p>所有数据（书签、历史、Cookie、密码、扩展等）都在本文件夹的 <code>data</code> 目录。</p>
+<ul>
+<li><strong>同机迁移</strong>：移动整个文件夹后，重跑 <code>setup.bat</code> 即可。</li>
+<li><strong>换机器</strong>：复制整个文件夹到新机 → 运行 <code>setup.bat</code> → 在新机系统设置里重新设一次默认浏览器。</li>
+</ul>
+
+<h2>取消注册</h2>
+<p>若不再使用，运行 <code>unregister.bat</code> 可删除全部注册表键（可重复运行）。</p>
+<div class="box">取消注册前，请先在系统设置里把默认浏览器改回其他程序，否则外部链接将无法打开。</div>
+
+<h2>安全提示</h2>
+<div class="danger box">
+<strong>明文存储</strong>：为支持跨机器使用，Cookie、保存的密码、自动填充、会话令牌等均以可解密方式存储在 <code>data</code> 目录。
+请像保管密码一样保管本文件夹——建议置于加密卷（如 BitLocker），切勿放在共享盘或同步盘。
+</div>
+<div class="danger box">
+<strong>混装风险</strong>：本包启用 <code>cleanup: true</code>，退出时会清理 <code>%APPDATA%\BraveSoftware</code> 与 <code>%LOCALAPPDATA%\BraveSoftware</code>。
+若本机同时安装了<strong>普通版 Brave</strong>，其用户数据可能被一并清理。请勿混装，或知悉此风险后再用。
+</div>
+<div class="danger box">
+<strong>杀毒软件</strong>：修改 http/https 关联的行为与“浏览器劫持”相似，可能被杀毒/EDR 拦截或回滚。若被拦截，需在杀毒软件中放行本脚本。
+</div>
+
+<h2>故障排查</h2>
+<ul>
+<li>外部链接打不开 → 检查系统设置里默认浏览器是否为“Brave Portable”。</li>
+<li>迁移后打不开 → 重跑 <code>setup.bat</code>。</li>
+<li>列表里看不到“Brave Portable” → 重跑 <code>setup.bat</code>（可能 ApplicationDescription 缺失）。</li>
+</ul>
+
+<p style="margin-top:2em;color:#999;font-size:.9em">Brave Portable Bundle · 数据唯一归宿 data · 宿主无残留</p>
+</body>
+</html>
