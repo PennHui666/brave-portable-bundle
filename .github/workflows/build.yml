@@ -103,7 +103,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          REL="v${{ steps.up.outputs.ver }}-bundle"
+          REL="${{ steps.up.outputs.ver }}-bundle"
           if gh release view "$REL" >/dev/null 2>&1; then
             echo "Release $REL 已存在，跳过创建"
             exit 0
