@@ -76,8 +76,8 @@ jobs:
           with open(target, "w", encoding="utf-8") as f:
               yaml.safe_dump(existing, f, allow_unicode=True, sort_keys=False)
           chk = yaml.safe_load(open(target, encoding="utf-8"))
-          assert chk.get("app", {}).get("cleanup") is True, "app.cleanup 必须为 true"
-          print("校验通过：app.cleanup == true")
+          assert chk.get("app", {}).get("cleanup") is True, "app.cleanup must be true"
+          print("OK: app.cleanup == true")
           PY
 
       - name: 注入 payload 到包根
