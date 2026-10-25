@@ -60,6 +60,8 @@ jobs:
 
       - name: 预置配置并结构化校验
         shell: bash
+        env:
+          PYTHONIOENCODING: utf-8
         run: |
           python - <<'PY'
           import os, yaml
