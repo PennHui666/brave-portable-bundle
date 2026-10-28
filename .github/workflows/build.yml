@@ -40,8 +40,17 @@ jobs:
           VER="${TAG#v}"
           echo "ver=$VER" >> $GITHUB_OUTPUT
           echo "asset=brave-portable-win64-${VER}.7z" >> $GITHUB_OUTPUT
+          BUNDLE_REL="${VER}-bundle"
+          if gh release view "$BUNDLE_REL" >/dev/null 2>&1; then
+            echo "needed=false" >> $GITHUB_OUTPUT
+            echo "Skip: release $BUNDLE_REL already exists"
+          else
+            echo "needed=true" >> $GITHUB_OUTPUT
+            echo "Build needed: upstream $VER not yet bundled"
+          fi
 
       - name: 下载上游发布包
+        if: steps.up.outputs.needed == 'true'
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -53,12 +62,14 @@ jobs:
             --dir work
 
       - name: 解压
+        if: steps.up.outputs.needed == 'true'
         shell: bash
         run: |
           mkdir -p pkg
           "/c/Program Files/7-Zip/7z.exe" x "work/${{ steps.up.outputs.asset }}" -opkg -y
 
       - name: 预置配置并结构化校验
+        if: steps.up.outputs.needed == 'true'
         shell: bash
         env:
           PYTHONIOENCODING: utf-8
@@ -81,17 +92,20 @@ jobs:
           PY
 
       - name: 注入 payload 到包根
+        if: steps.up.outputs.needed == 'true'
         shell: bash
         run: |
           cp -v payload/setup.bat payload/launch.vbs payload/unregister.bat payload/readme.html pkg/
 
       - name: 确认启动器存在
+        if: steps.up.outputs.needed == 'true'
         shell: bash
         run: |
           test -f pkg/brave-portable.exe || { echo "包根未找到 brave-portable.exe"; exit 1; }
           ls -la pkg/
 
       - name: 重打包
+        if: steps.up.outputs.needed == 'true'
         id: pack
         shell: bash
         run: |
@@ -101,6 +115,7 @@ jobs:
           echo "out=$OUT" >> $GITHUB_OUTPUT
 
       - name: 创建 Release
+        if: steps.up.outputs.needed == 'true'
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
