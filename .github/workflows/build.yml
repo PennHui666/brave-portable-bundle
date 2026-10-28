@@ -41,7 +41,10 @@ jobs:
           echo "ver=$VER" >> $GITHUB_OUTPUT
           echo "asset=brave-portable-win64-${VER}.7z" >> $GITHUB_OUTPUT
           BUNDLE_REL="${VER}-bundle"
-          if gh release view "$BUNDLE_REL" >/dev/null 2>&1; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "needed=true" >> $GITHUB_OUTPUT
+            echo "Force build (manual dispatch)"
+          elif gh release view "$BUNDLE_REL" >/dev/null 2>&1; then
             echo "needed=false" >> $GITHUB_OUTPUT
             echo "Skip: release $BUNDLE_REL already exists"
           else
@@ -122,8 +125,8 @@ jobs:
         run: |
           REL="${{ steps.up.outputs.ver }}-bundle"
           if gh release view "$REL" >/dev/null 2>&1; then
-            echo "Release $REL 已存在，跳过创建"
-            exit 0
+            echo "Release $REL 已存在，删除后重建"
+            gh release delete "$REL" --yes
           fi
           gh release create "$REL" \
             "${{ steps.pack.outputs.out }}" "${{ steps.pack.outputs.out }}.sha256" \
